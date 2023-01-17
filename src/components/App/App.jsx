@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AppStyeled } from './App.style';
@@ -9,90 +9,70 @@ import ImageGallery from '../ImageGallery/ImageGallery';
 import ButtonLoadMore from 'components/Button';
 import Loader from 'components/Loader';
 
-class App extends Component {
-  state = {
-    searchValue: '',
-    dataImg: [],
-    page: 1,
-    error: '',
-    status: 'idle', //pending, sucsses, reject
+const App = () => {
+  const [searchValue, setSearchValue] = useState('');
+  const [dataImg, setDataImg] = useState([]);
+  const [page, setPage] = useState(1);
+  const [error, setError] = useState('');
+  const [status, setStatus] = useState('idle');
+
+  const fetchData = async (page, searchValue) => {
+    try {
+      setStatus('pending');
+      const data = await pixabayApi(page, searchValue);
+      const dataHits = data.hits.map(
+        ({ id, webformatURL, largeImageURL, user }) => {
+          return {
+            id: id,
+            webformatURL: webformatURL,
+            largeImageURL: largeImageURL,
+            user: user,
+          };
+        }
+      );
+
+      setDataImg(prevImg => [...prevImg, ...dataHits]);
+      setStatus('sucsses');
+    } catch ({ message }) {
+      setError(message);
+      setStatus('idle');
+    }
   };
 
-  async componentDidUpdate(_, prevState) {
-    const { page, searchValue } = this.state;
-
-    if (searchValue.trim() === '') {
-      toast.error('Введите значение для поиска!');
+  useEffect(() => {
+    if (!searchValue) {
       return;
     }
-    try {
-      if (prevState.page !== page || prevState.searchValue !== searchValue) {
-        this.setState({
-          status: 'pending',
-        });
+    fetchData(page, searchValue);
+  }, [page, searchValue]);
 
-        const data = await pixabayApi(page, searchValue);
-
-        const dataHits = data.hits.map(
-          ({ id, webformatURL, largeImageURL, user }) => {
-            return {
-              id: id,
-              webformatURL: webformatURL,
-              largeImageURL: largeImageURL,
-              user: user,
-            };
-          }
-        );
-
-        this.setState(prevState => ({
-          dataImg: [...prevState.dataImg, ...dataHits],
-          status: 'sucsses',
-        }));
-      }
-    } catch ({ message }) {
-      this.setState({
-        error: message,
-        status: 'idle',
-      });
-    }
-  }
-
-  incrementPage = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
+  const incrementPage = () => {
+    setPage(prevPage => prevPage + 1);
     scrollPage();
   };
 
-  searchByValue = ({ name }) => {
-    this.setState({
-      searchValue: name,
-      dataImg: [],
-      page: 1,
-    });
+  const searchByValue = ({ name }) => {
+    if (!name.trim()) { toast.error('Введите значение для поиска!');
+      return;
+    }
+    setSearchValue(name);
+    setDataImg([]);
+    setPage(1);
   };
 
-  render() {
-    const { dataImg, status, error } = this.state;
+  return (
+    <AppStyeled>
+      <Searchbar onSubmitForm={searchByValue} status={status === 'pending'} />
+      <ToastContainer theme="colored" />
 
-    return (
-      <AppStyeled>
-        <Searchbar
-          onSubmitForm={this.searchByValue}
-          status={status === 'pending'}
-        />
-        <ToastContainer theme="colored" />
-        {status === 'pending' && <Loader />}
-        {error && <p>Error {error}, please reload the page and try again!</p>}
- 
-        <ImageGallery onOpenModal={this.handleOpenModal} onSubmit={dataImg} />
-        
-        {status === 'sucsses' && (
-          <ButtonLoadMore onIncrement={this.incrementPage} />
-        )}
-      </AppStyeled>
-    );
-  }
-}
+      {error && <p>Error {error}, please reload the page and try again!</p>}
+
+      <ImageGallery onSubmit={dataImg} />
+      {status === 'pending' && <Loader />}
+
+      {status === 'sucsses' && <ButtonLoadMore onIncrement={incrementPage} />}
+    </AppStyeled>
+  );
+};
 
 export default App;

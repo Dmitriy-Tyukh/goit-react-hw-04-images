@@ -1,40 +1,36 @@
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import { PureComponent } from 'react';
+import { createPortal } from 'react-dom';
+import { useEffect } from 'react';
 import { Overlay, ModalStyle } from './Modal.style';
 
-class Modal extends PureComponent {
-static propTypes = {
-  closeModal: PropTypes.func.isRequired,
+const Modal = ({ closeModal, children }) => {
+
+    const handleCloseModal = event => {
+        if (event.currentTarget === event.target || event.code === 'Escape') {
+            closeModal();
+        }
+    };
+
+    useEffect(() => {
+        window.addEventListener('keydown', handleCloseModal);
+        return () => {
+            window.removeEventListener('keydown', handleCloseModal);
+        }
+    })
+    
+    return createPortal(
+        <Overlay onClick={handleCloseModal}>
+            <ModalStyle>
+                {children}
+            </ModalStyle>
+        </Overlay>,
+        document.querySelector('#modal-root')
+    );
 };
-  handleCloseModal = event => {
-    const { closeModal } = this.props;
-    
-    if (event.currentTarget === event.target || event.code === 'Escape') {
-    closeModal();
-    }
-  };
 
-  componentDidMount() {
-    window.addEventListener('keydown', this.handleCloseModal);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleCloseModal);
-    }
-    
-  render() {
-      const { children } = this.props;
-      
-    return ReactDOM.createPortal(
-      <Overlay onClick={this.handleCloseModal}>
-        <ModalStyle>
-            {children}
-        </ModalStyle>
-      </Overlay>,
-      document.querySelector('#modal-root')
-    ); 
-  }
+Modal.propTypes = {
+    closeModal: PropTypes.func.isRequired,
+    children: PropTypes.node,
 };
 
 export default Modal;

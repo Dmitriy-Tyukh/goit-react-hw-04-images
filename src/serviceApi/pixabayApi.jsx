@@ -10,11 +10,10 @@ async function pixabayApi(page, searchValue) {
   return responce.data;
 }
 
-export default pixabayApi;
-
 pixabayApi.propTypes = {
-  page: PropTypes.number.isRequired,
-  searchValue: PropTypes.string.isRequired,
+    page: PropTypes.number.isRequired,
+    searchValue: PropTypes.string.isRequired,
 };
 
+export default pixabayApi;
 

@@ -4,7 +4,6 @@ import { Formik } from 'formik';
 import { MdSearch } from 'react-icons/md';
 import { ButtonSearch, FormStyle, FieldStyle } from './SearchForm.styled';
 
-
 const SearchForm = ({ onSubmitForm, status }) => {
     const handleSubmitForm = (values, { resetForm }) => {
     onSubmitForm(values);
@@ -35,9 +34,9 @@ const SearchForm = ({ onSubmitForm, status }) => {
   );
 };
 
-export default SearchForm;
-
 SearchForm.propTypes = {
-  onSubmitForm: PropTypes.func.isRequired,
-  status: PropTypes.bool.isRequired,
+    onSubmitForm: PropTypes.func.isRequired,
+    status: PropTypes.bool.isRequired,
 };
+
+export default SearchForm;
