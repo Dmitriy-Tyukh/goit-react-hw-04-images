@@ -1,19 +1,18 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import { MdSearch } from 'react-icons/md';
 import { ButtonSearch, FormStyle, FieldStyle } from './SearchForm.styled';
 
 const SearchForm = ({ onSubmitForm, status }) => {
+
     const handleSubmitForm = (values, { resetForm }) => {
-    onSubmitForm(values);
-    resetForm();
-  };
+        onSubmitForm(values);
+        resetForm();
+    };
 
   return (
     <Formik initialValues={{ name: '' }} onSubmit={handleSubmitForm}>
       <FormStyle>
-              
         <ButtonSearch
           type="submit"
           disabled={status}
@@ -28,7 +27,6 @@ const SearchForm = ({ onSubmitForm, status }) => {
           placeholder="Search images and photos"
           name="name"
         />
-              
       </FormStyle>
     </Formik>
   );

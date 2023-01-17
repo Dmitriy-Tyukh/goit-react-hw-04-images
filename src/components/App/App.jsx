@@ -15,7 +15,7 @@ const App = () => {
   const [page, setPage] = useState(1);
   const [error, setError] = useState('');
   const [status, setStatus] = useState('idle');
-
+  
   const fetchData = async (page, searchValue) => {
     try {
       setStatus('pending');
@@ -30,9 +30,9 @@ const App = () => {
           };
         }
       );
-
       setDataImg(prevImg => [...prevImg, ...dataHits]);
       setStatus('sucsses');
+        
     } catch ({ message }) {
       setError(message);
       setStatus('idle');
